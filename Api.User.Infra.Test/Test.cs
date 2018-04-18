@@ -2,6 +2,8 @@ using Api.User.Domain.Interfaces.Repository;
 using Api.User.Infra.Repository;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
 using Xunit;
 
 namespace Api.User.Infra.Test
@@ -21,13 +23,14 @@ namespace Api.User.Infra.Test
         }
 
         [Fact]
-        public async void ReturnListOfProfessionalsByKindOfService()
+        public void ReturnListOfProfessionalsByKindOfService()
         {
-            string kindOfService = "Eletricista";
+            AsyncLocal<string> kindOfService = new AsyncLocal<string>();
+            kindOfService.Value = "Eletricista";
 
             IEnumerable<Domain.Entities.User> users;
 
-            users = await _repository.GetUsersByKindOfService(kindOfService);
+            users = _repository.GetUsersByKindOfService(kindOfService.Value);
 
             Assert.True(users.Count() > 0);
         }

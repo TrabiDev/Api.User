@@ -10,8 +10,8 @@ namespace Api.User.Domain.Entities
         public string DDD { get; private set; }
         public string Phone { get; private set; }
         public string Password { get; private set; }
-        public Address Address { get; private set; }
-        public ProfessionalInformations ProfessionalInformations { get; private set; }
-        public IEnumerable<Images> Images { get; private set; }
+        public Address Address { get; set; }
+        public ProfessionalInformations ProfessionalInformations { get; set; }
+        public IEnumerable<Images> Images { get; set; }
     }
 }

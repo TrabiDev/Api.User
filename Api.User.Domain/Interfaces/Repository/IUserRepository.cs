@@ -5,6 +5,6 @@ namespace Api.User.Domain.Interfaces.Repository
 {
     public interface IUserRepository
     {
-        Task<IEnumerable<Entities.User>> GetUsersByKindOfService(string kindOfService);
+        IEnumerable<Entities.User> GetUsersByKindOfService(string kindOfService);
     }
 }
