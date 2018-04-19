@@ -3,16 +3,17 @@ using Api.User.Domain.Interfaces.Repository;
 using Dapper;
 using System.Collections.Generic;
 using System.Data.SqlClient;
+using System.Threading.Tasks;
 
 namespace Api.User.Infra.Repository
 {
     public class UserRepository : IUserRepository
     {
-        public IEnumerable<Domain.Entities.User> GetUsersByKindOfService(string kindOfService)
+        public async Task<IEnumerable<Domain.Entities.User>> GetUsersByKindOfService(string kindOfService)
         {
             using (SqlConnection connection = new SqlConnection(ConnectionStrings.MeuLinkProd))
             {
-                return connection.Query<Domain.Entities.User, Address, ProfessionalInformations, Domain.Entities.User>(
+                return await connection.QueryAsync<Domain.Entities.User, Address, ProfessionalInformations, Domain.Entities.User>(
                     @"SELECT
 	                    u.Id,
 	                    u.Name,
@@ -20,7 +21,7 @@ namespace Api.User.Infra.Repository
 	                    u.DDD,
 	                    u.Phone,
 	                    u.Password,
-	                    a.Id AS Address_Id,
+	                    a.Id,
 	                    a.UserId,
 	                    a.AddressLine,
 	                    a.Number,
@@ -31,7 +32,7 @@ namespace Api.User.Infra.Repository
 	                    a.ZipCode,
 	                    a.Latitude,
 	                    a.Longitude,
-	                    p.Id AS ProfessionalInformations_Id,
+	                    p.Id,
 	                    p.UserId,
 	                    p.Description
                     FROM Users AS u
@@ -51,9 +52,22 @@ namespace Api.User.Infra.Repository
                         user.Address = address;
                         user.ProfessionalInformations = professionalInformations;
 
+                        user.ProfessionalInformations.Services = connection.Query<Services>(
+                            $@"SELECT
+                                *
+                              FROM Services
+                              WHERE ProfessionalInformationsId = {user.ProfessionalInformations.Id}
+                            ");
+
+                        user.Images = connection.Query<Images>(
+                            $@"SELECT 
+                                * 
+                               FROM Images 
+                               WHERE UserId = {user.Id}");
+
                         return user;
                     },
-                    splitOn: "Password, Address_Id, Longitude, ProfessionalInformations_Id"
+                    splitOn: "Id, Id"
                 );
             }
         }
