@@ -23,16 +23,17 @@ namespace Api.User.Infra.Test
         }
 
         [Fact]
-        public void ReturnListOfProfessionalsByKindOfService()
+        public async Task ReturnListOfUsersByKindOfService()
         {
-            AsyncLocal<string> kindOfService = new AsyncLocal<string>();
-            kindOfService.Value = "Eletricista";
+            string kindOfService = "Eletricista";
 
             IEnumerable<Domain.Entities.User> users;
 
-            users = _repository.GetUsersByKindOfService(kindOfService.Value);
+            users = await _repository.GetUsersByKindOfService(kindOfService);
 
             Assert.True(users.Count() > 0);
+            Assert.Contains(users, p => p.Address != null);
+            Assert.Contains(users, p => p.ProfessionalInformations != null);
         }
     }
 }
