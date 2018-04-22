@@ -2,6 +2,7 @@
 using Api.User.Domain.Interfaces.Controller;
 using Api.User.Domain.Interfaces.Services;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Logging;
 
 namespace Api.User.Controllers
 {
@@ -9,11 +10,12 @@ namespace Api.User.Controllers
     [Route("api/User")]
     public class UserController : Controller, IUserController
     {
-
         private readonly IUserService _service;
+        private readonly ILogger<UserController> _log;
 
-        public UserController(IUserService service)
+        public UserController(IUserService service, ILogger<UserController> log)
         {
+            _log = log;
             _service = service;
         }
 
@@ -21,10 +23,18 @@ namespace Api.User.Controllers
         [Route("GetUsersByKindOfService")]
         public async Task<IActionResult> GetUsersByKindOfService(string request)
         {
+            try
+            {
+                var result = await _service.GetUsersByKindOfService(request);
 
-            var result = await _service.GetUsersByKindOfService(request);
+                return Ok(result);
+            }
+            catch (System.Exception ex)
+            {
+                _log.LogError(ex, ex.Message);
 
-            return Ok(result);
+                return StatusCode(500, "Internal Error");
+            }
 
         }
 
