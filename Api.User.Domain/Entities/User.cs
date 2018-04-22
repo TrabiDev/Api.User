@@ -12,6 +12,6 @@ namespace Api.User.Domain.Entities
         public string Password { get; private set; }
         public Address Address { get; set; }
         public ProfessionalInformations ProfessionalInformations { get; set; }
-        public IEnumerable<Images> Images { get; set; }
+        public List<Images> Images { get; set; }
     }
 }

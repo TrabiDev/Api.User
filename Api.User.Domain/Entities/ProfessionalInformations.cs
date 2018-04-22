@@ -13,6 +13,6 @@ namespace Api.User.Domain.Entities
 
         public string Description { get; set; }
 
-        public IEnumerable<Services> Services { get; set; }
+        public List<Services> Services { get; set; }
     }
 }

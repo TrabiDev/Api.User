@@ -3,17 +3,26 @@ using Api.User.Domain.Interfaces.Repository;
 using Dapper;
 using System.Collections.Generic;
 using System.Data.SqlClient;
+using System.Linq;
 using System.Threading.Tasks;
 
 namespace Api.User.Infra.Repository
 {
     public class UserRepository : IUserRepository
     {
-        public async Task<IEnumerable<Domain.Entities.User>> GetUsersByKindOfService(string kindOfService)
+        /// <summary>
+        /// Busca usuários pelo tipo de serviço prestado
+        /// </summary>
+        /// <param name="kindOfService">Tipo de serviço</param>
+        /// <returns></returns>
+        public async Task<List<Domain.Entities.User>> GetUsersByKindOfService(string kindOfService)
         {
+            List<Domain.Entities.User> users;
+
+
             using (SqlConnection connection = new SqlConnection(ConnectionStrings.MeuLinkProd))
             {
-                return await connection.QueryAsync<Domain.Entities.User, Address, ProfessionalInformations, Domain.Entities.User>(
+                users = (await connection.QueryAsync<Domain.Entities.User, Address, ProfessionalInformations, Domain.Entities.User>(
                     @"SELECT
 	                    u.Id,
 	                    u.Name,
@@ -52,24 +61,87 @@ namespace Api.User.Infra.Repository
                         user.Address = address;
                         user.ProfessionalInformations = professionalInformations;
 
-                        user.ProfessionalInformations.Services = connection.Query<Services>(
-                            $@"SELECT
-                                *
-                              FROM Services
-                              WHERE ProfessionalInformationsId = {user.ProfessionalInformations.Id}
-                            ");
-
-                        user.Images = connection.Query<Images>(
-                            $@"SELECT 
-                                * 
-                               FROM Images 
-                               WHERE UserId = {user.Id}");
+                        user.ProfessionalInformations.Services = new List<Services>();
+                        user.Images = new List<Images>();
 
                         return user;
                     },
                     splitOn: "Id, Id"
+                )).ToList();
+            }
+
+            #region GetServices 
+
+            var listProfessionalInformationsId = users.Select(p => p.ProfessionalInformations.Id);
+
+            var services = await GetServices(listProfessionalInformationsId);
+
+            foreach (var service in services)
+            {
+                users.FirstOrDefault(p => p.ProfessionalInformations.Id == service.ProfessionalInformationsId).ProfessionalInformations.Services.Add(service);
+            }
+
+            #endregion
+
+            #region GetImages
+
+            var listUserId = users.Select(p => p.Id);
+
+            var images = await GetImages(listUserId);
+
+            foreach (var image in images)
+            {
+                users.FirstOrDefault(p => p.Id == image.UserId).Images.Add(image);
+            }
+
+            #endregion
+
+            return users;
+        }
+
+        /// <summary>
+        /// Busca os serviços de profissionais
+        /// </summary>
+        /// <param name="listProfessionalInformationsId">Lista de profissionais para consulta dos seus respectivos serviços</param>
+        /// <returns></returns>
+        private async Task<IEnumerable<Services>> GetServices(IEnumerable<int> listProfessionalInformationsId)
+        {
+            using (SqlConnection connection = new SqlConnection(ConnectionStrings.MeuLinkProd))
+            {
+                return await connection.QueryAsync<Services>(
+                    @"SELECT
+                        *
+                      FROM Services
+                      WHERE ProfessionalInformationsId IN (@listProfessionalInformationsId);",
+                    param: new
+                    {
+                        listProfessionalInformationsId
+                    }
                 );
             }
         }
+
+        /// <summary>
+        /// Busca as imagens de usuários
+        /// </summary>
+        /// <param name="listUserId">Lista de usuários para consulta de suas respectivas imagens</param>
+        /// <returns></returns>
+        private async Task<IEnumerable<Images>> GetImages(IEnumerable<int> listUserId)
+        {
+            using (SqlConnection connection = new SqlConnection(ConnectionStrings.MeuLinkProd))
+            {
+                return await connection.QueryAsync<Images>(
+                    @"SELECT
+                        *
+                      FROM Images
+                      WHERE UserId IN (@listUserId);",
+                    param: new
+                    {
+                        listUserId
+                    }
+                );
+            }
+        }
+
     }
 }

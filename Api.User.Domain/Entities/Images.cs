@@ -12,7 +12,7 @@ namespace Api.User.Domain.Entities
         public int UserId { get; private set; }
 
         [Required]
-        public EImagesType ImagesType { get; set; }
+        public EImagesType ImagesTypeId { get; set; }
 
         [Required]
         public string Value { get; set; }
