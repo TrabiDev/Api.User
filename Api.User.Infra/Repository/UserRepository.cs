@@ -1,6 +1,7 @@
 ﻿using Api.User.Domain.Entities;
 using Api.User.Domain.Interfaces.Repository;
 using Dapper;
+using Microsoft.Extensions.Configuration;
 using System.Collections.Generic;
 using System.Data.SqlClient;
 using System.Linq;
@@ -10,6 +11,20 @@ namespace Api.User.Infra.Repository
 {
     public class UserRepository : IUserRepository
     {
+        private readonly IConfiguration _config;
+        private string connectionString;
+
+        public UserRepository()
+        {
+            connectionString = ConnectionStrings.MeuLinkLocal;
+        }
+
+        public UserRepository(IConfiguration configuration)
+        {
+            _config = configuration;
+            connectionString = _config.GetConnectionString("DefaultConnection");
+        }
+
         /// <summary>
         /// Busca usuários pelo tipo de serviço prestado
         /// </summary>
@@ -20,7 +35,7 @@ namespace Api.User.Infra.Repository
             List<Domain.Entities.User> users;
 
 
-            using (SqlConnection connection = new SqlConnection(ConnectionStrings.MeuLinkProd))
+            using (SqlConnection connection = new SqlConnection(connectionString))
             {
                 users = (await connection.QueryAsync<Domain.Entities.User, Address, ProfessionalInformations, Domain.Entities.User>(
                     @"SELECT
@@ -106,7 +121,7 @@ namespace Api.User.Infra.Repository
         /// <returns></returns>
         private async Task<IEnumerable<Services>> GetServices(IEnumerable<int> listProfessionalInformationsId)
         {
-            using (SqlConnection connection = new SqlConnection(ConnectionStrings.MeuLinkProd))
+            using (SqlConnection connection = new SqlConnection(connectionString))
             {
                 return await connection.QueryAsync<Services>(
                     @"SELECT
@@ -128,7 +143,7 @@ namespace Api.User.Infra.Repository
         /// <returns></returns>
         private async Task<IEnumerable<Images>> GetImages(IEnumerable<int> listUserId)
         {
-            using (SqlConnection connection = new SqlConnection(ConnectionStrings.MeuLinkProd))
+            using (SqlConnection connection = new SqlConnection(connectionString))
             {
                 return await connection.QueryAsync<Images>(
                     @"SELECT

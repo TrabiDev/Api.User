@@ -33,6 +33,7 @@ namespace Api.User
 
             services.AddTransient<IUserService, UserService>();
             services.AddTransient<IUserRepository, UserRepository>();
+            services.AddSingleton(Configuration);
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -51,7 +52,7 @@ namespace Api.User
 
             app.UseSwaggerUI(c =>
             {
-                c.SwaggerEndpoint("/swagger/v1/swagger.json ", "User v1");
+                c.SwaggerEndpoint("../swagger/v1/swagger.json ", "User v1");
             });
         }
 
