@@ -2,7 +2,7 @@ BEGIN TRY
 
 BEGIN TRANSACTION;
 
-Use Trabi;
+Use DbUser;
 
 DROP TABLE IF EXISTS Address;
 DROP TABLE IF EXISTS ImagesType;
