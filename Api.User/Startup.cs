@@ -1,4 +1,6 @@
-﻿using Api.User.Domain.Interfaces.Repository;
+﻿using Api.User.Domain.Interfaces.Controller;
+using Api.User.Domain.Interfaces.Repository;
+using Api.User.Domain.Interfaces.Service;
 using Api.User.Domain.Interfaces.Services;
 using Api.User.Domain.Services;
 using Api.User.Infra.Repository;
@@ -29,11 +31,18 @@ namespace Api.User
             services.AddSwaggerGen(c =>
             {
                 c.SwaggerDoc("v1", new Info { Title = "User", Version = "v1" });
+                c.IncludeXmlComments(Configuration.GetValue<string>("PathXmlDocumentation"));
             });
 
             services.AddTransient<IUserService, UserService>();
             services.AddTransient<IUserRepository, UserRepository>();
+
+            services.AddTransient<IAddressService, AddressService>();
+            services.AddTransient<IAddressRepository, AddressRepository>();
+
             services.AddSingleton(Configuration);
+
+            
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

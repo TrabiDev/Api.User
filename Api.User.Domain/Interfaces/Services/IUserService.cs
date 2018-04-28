@@ -5,6 +5,6 @@ namespace Api.User.Domain.Interfaces.Services
 {
     public interface IUserService
     {
-        Task<GetUsersByKindOfServiceResponse> GetUsersByKindOfService(string request);
+        Task<GetUserResponse> Get(int id = 0, string kindOfService = null);
     }
 }

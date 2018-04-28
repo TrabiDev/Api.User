@@ -2,9 +2,11 @@
 using Api.User.Domain.Interfaces.Repository;
 using Dapper;
 using Microsoft.Extensions.Configuration;
+using System;
 using System.Collections.Generic;
 using System.Data.SqlClient;
 using System.Linq;
+using System.Text;
 using System.Threading.Tasks;
 
 namespace Api.User.Infra.Repository
@@ -12,11 +14,12 @@ namespace Api.User.Infra.Repository
     public class UserRepository : IUserRepository
     {
         private readonly IConfiguration _config;
+
         private string connectionString;
 
         public UserRepository()
         {
-            connectionString = ConnectionStrings.MeuLinkLocal;
+            connectionString = _config.GetConnectionString("DefaultConnection");
         }
 
         public UserRepository(IConfiguration configuration)
@@ -26,50 +29,24 @@ namespace Api.User.Infra.Repository
         }
 
         /// <summary>
-        /// Busca usuários pelo tipo de serviço prestado
+        /// Busca usuários de acordo com os filtros enviados
         /// </summary>
+        /// <param name="id">Id do usuário</param>
         /// <param name="kindOfService">Tipo de serviço</param>
-        /// <returns></returns>
-        public async Task<List<Domain.Entities.User>> GetUsersByKindOfService(string kindOfService)
+        public async Task<List<Domain.Entities.User>> Get(int id = 0, string kindOfService = null)
         {
             List<Domain.Entities.User> users;
 
+            string scriptSelect = CreateSqlGet(id, kindOfService);
 
             using (SqlConnection connection = new SqlConnection(connectionString))
             {
                 users = (await connection.QueryAsync<Domain.Entities.User, Address, ProfessionalInformations, Domain.Entities.User>(
-                    @"SELECT
-	                    u.Id,
-	                    u.Name,
-	                    u.Email,
-	                    u.DDD,
-	                    u.Phone,
-	                    u.Password,
-	                    a.Id,
-	                    a.UserId,
-	                    a.AddressLine,
-	                    a.Number,
-	                    a.Complement,
-	                    a.City,
-	                    a.State,
-	                    a.Country,
-	                    a.ZipCode,
-	                    a.Latitude,
-	                    a.Longitude,
-	                    p.Id,
-	                    p.UserId,
-	                    p.Description
-                    FROM Users AS u
-                    INNER JOIN Address AS a
-                    ON u.Id = a.UserId
-                    INNER JOIN ProfessionalInformations AS p
-                    ON u.Id = p.UserId
-                    INNER JOIN Services AS s
-                    ON p.Id = s.ProfessionalInformationsId
-                    WHERE s.Name = @kindOfService;",
+                    scriptSelect,
                     param: new
                     {
-                        kindOfService
+                        Id = id,
+                        KindOfService = kindOfService
                     },
                     map: (user, address, professionalInformations) =>
                     {
@@ -121,19 +98,28 @@ namespace Api.User.Infra.Repository
         /// <returns></returns>
         private async Task<IEnumerable<Services>> GetServices(IEnumerable<int> listProfessionalInformationsId)
         {
-            using (SqlConnection connection = new SqlConnection(connectionString))
+            try
             {
-                return await connection.QueryAsync<Services>(
-                    @"SELECT
-                        *
-                      FROM Services
-                      WHERE ProfessionalInformationsId IN (@listProfessionalInformationsId);",
-                    param: new
-                    {
-                        listProfessionalInformationsId
-                    }
-                );
+                using (SqlConnection connection = new SqlConnection(connectionString))
+                {
+                    return await connection.QueryAsync<Services>(
+                        @"SELECT
+                            *
+                          FROM Services
+                          WHERE ProfessionalInformationsId IN @listProfessionalInformationsId",
+                        param: new
+                        {
+                            listProfessionalInformationsId
+                        }
+                    );
+                }
             }
+            catch (Exception ex)
+            {
+
+                throw;
+            }
+
         }
 
         /// <summary>
@@ -149,13 +135,69 @@ namespace Api.User.Infra.Repository
                     @"SELECT
                         *
                       FROM Images
-                      WHERE UserId IN (@listUserId);",
+                      WHERE UserId IN @listUserId;",
                     param: new
                     {
                         listUserId
                     }
                 );
             }
+        }
+
+        /// <summary>
+        /// Cria um script dinâmico para consulta dos usuários
+        /// </summary>
+        /// <param name="id">Id do usuário</param>
+        /// <param name="kindOfService">Tipo de serviço</param>
+        /// <returns></returns>
+        private string CreateSqlGet(int id, string kindOfService)
+        {
+            string select = 
+                    @"SELECT
+	                    u.Id,
+	                    u.Name,
+	                    u.Email,
+	                    u.DDD,
+	                    u.Phone,
+	                    u.Password,
+	                    a.Id,
+	                    a.UserId,
+	                    a.AddressLine,
+	                    a.Number,
+	                    a.Complement,
+	                    a.City,
+	                    a.State,
+	                    a.Country,
+	                    a.ZipCode,
+	                    a.Latitude,
+	                    a.Longitude,
+	                    p.Id,
+	                    p.UserId,
+	                    p.Description
+                    FROM Users AS u
+                    INNER JOIN Address AS a
+                    ON u.Id = a.UserId
+                    INNER JOIN ProfessionalInformations AS p
+                    ON u.Id = p.UserId
+                    INNER JOIN Services AS s
+                    ON p.Id = s.ProfessionalInformationsId
+                    WHERE 1 = 1";
+
+            StringBuilder where = new StringBuilder();
+
+            if(id > 0)
+            {
+                where.Append(" ");
+                where.Append("AND u.Id = @Id");
+            }
+
+            if (!string.IsNullOrEmpty(kindOfService))
+            {
+                where.Append(" ");
+                where.Append("AND s.Name LIKE CONCAT('%', @KindOfService, '%')");
+            }
+
+            return select + where;
         }
 
     }

@@ -14,11 +14,11 @@ namespace Api.User.Domain.Services
             _repository = repository;
         }
 
-        public async Task<GetUsersByKindOfServiceResponse> GetUsersByKindOfService(string request)
+        public async Task<GetUserResponse> Get(int id = 0, string kindOfService = null)
         {
-            GetUsersByKindOfServiceResponse response = new GetUsersByKindOfServiceResponse
+            GetUserResponse response = new GetUserResponse
             {
-                Users = await _repository.GetUsersByKindOfService(request)
+                Users = await _repository.Get(id, kindOfService)
             };
 
             return response;

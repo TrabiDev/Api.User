@@ -3,8 +3,8 @@ using System.Threading.Tasks;
 
 namespace Api.User.Domain.Interfaces.Controller
 {
-    public interface IUserController
+    public interface IAddressController
     {
-        Task<IActionResult> Get(int id = 0, string kindOfService = null);
+        Task<IActionResult> Get(int id);
     }
 }

@@ -21,13 +21,29 @@ namespace Api.User.Infra.Test
         }
 
         [Fact]
-        public async Task ReturnListOfUsersByKindOfService()
+        public async Task GetUsersByKindOfService()
         {
             string kindOfService = "Eletricista";
 
             List<Domain.Entities.User> users;
 
-            users = await _repository.GetUsersByKindOfService(kindOfService);
+            users = await _repository.Get(kindOfService: kindOfService);
+
+            Assert.True(users.Count > 0);
+            Assert.Contains(users, p => p.Address != null);
+            Assert.Contains(users, p => p.Images != null);
+            Assert.Contains(users, p => p.ProfessionalInformations != null);
+            Assert.Contains(users, p => p.ProfessionalInformations.Services != null);
+        }
+
+        [Fact]
+        public async Task GetUsersById()
+        {
+            int id = 1;
+
+            List<Domain.Entities.User> users;
+
+            users = await _repository.Get(id: id);
 
             Assert.True(users.Count > 0);
             Assert.Contains(users, p => p.Address != null);
