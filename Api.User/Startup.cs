@@ -1,5 +1,4 @@
-﻿using Api.User.Domain.Interfaces.Controller;
-using Api.User.Domain.Interfaces.Repository;
+﻿using Api.User.Domain.Interfaces.Repository;
 using Api.User.Domain.Interfaces.Service;
 using Api.User.Domain.Interfaces.Services;
 using Api.User.Domain.Services;
@@ -41,8 +40,6 @@ namespace Api.User
             services.AddTransient<IAddressRepository, AddressRepository>();
 
             services.AddSingleton(Configuration);
-
-            
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -53,7 +50,7 @@ namespace Api.User
                 app.UseDeveloperExceptionPage();
             }
 
-            loggerFactory.AddFile($"Log/{DateTime.Now.ToString("yyyyMMdd")}/Api.User.Log.txt", LogLevel.Warning, isJson: true);
+            loggerFactory.AddFile(Configuration.GetValue<string>("PathLog"), LogLevel.Warning, isJson: true);
 
             app.UseMvc();
 
