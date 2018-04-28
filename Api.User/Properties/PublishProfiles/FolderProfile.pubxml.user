@@ -10,7 +10,7 @@ by editing this MSBuild file. In order to learn more about this please visit htt
   </PropertyGroup>
   <ItemGroup>
     <DestinationConnectionStrings Include="DefaultConnection">
-      <Value>Server=tcp:meulinkdbserver.database.windows.net,1433;Initial Catalog=MeuLinkDB;Persist Security Info=False;User ID=devopspdr;Password=*Araralix001;MultipleActiveResultSets=False;Encrypt=True;TrustServerCertificate=False;Connection Timeout=30;</Value>
+      <Value>Data Source=.\\SQLEXPRESS;Initial Catalog=Trabi;Integrated Security=True;MultipleActiveResultSets=True</Value>
     </DestinationConnectionStrings>
   </ItemGroup>
 </Project>
