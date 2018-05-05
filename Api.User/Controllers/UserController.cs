@@ -51,5 +51,10 @@ namespace Api.User.Controllers
             }
         }
 
+        [HttpPost]
+        public async Task<IActionResult> Post()
+        {
+
+        }
     }
 }

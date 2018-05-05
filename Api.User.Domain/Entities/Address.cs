@@ -10,6 +10,7 @@ namespace Api.User.Domain.Entities
         [Required]
         public int UserId { get; private set; }
 
+        [Required]
         [MaxLength(100)]
         public string AddressLine { get; private set; }
         public int Number { get; private set; }
@@ -17,12 +18,15 @@ namespace Api.User.Domain.Entities
         [MaxLength(100)]
         public string Complement { get; private set; }
 
+        [Required]
         [MaxLength(100)]
         public string City { get; private set; }
 
-        [MaxLength(100)]
+        [Required]
+        [MaxLength(2)]
         public string State { get; private set; }
 
+        [Required]
         [MaxLength(100)]
         public string Country { get; private set; }
 

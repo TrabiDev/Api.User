@@ -1,6 +1,7 @@
 ﻿using Api.User.Domain.Arguments.Response;
 using Api.User.Domain.Interfaces.Repository;
 using Api.User.Domain.Interfaces.Services;
+using Api.User.Domain.Properties;
 using System.Threading.Tasks;
 
 namespace Api.User.Domain.Services
