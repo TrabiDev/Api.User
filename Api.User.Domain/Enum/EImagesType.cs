@@ -1,6 +1,6 @@
 ﻿namespace Api.User.Domain.Enum
 {
-    public enum EImagesType
+    public enum EImageType
     {
         ProfilePhoto = 1
     }

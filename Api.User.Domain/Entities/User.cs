@@ -13,18 +13,17 @@ namespace Api.User.Domain.Entities
         [Required]
         public string Email { get; private set; }
 
-        //TODO: Telefone deve ser um array
-
-
-        public string DDD { get; private set; }
-
-        public string Phone { get; private set; }
-
         [Required]
         public string Password { get; private set; }
 
         public Address Address { get; set; }
+
+        public List<Phone> Phones { get; set; }
+
         public ProfessionalInformations ProfessionalInformations { get; set; }
-        public List<Images> Images { get; set; }
+
+        public List<Image> Images { get; set; }
+
+        public List<Rating> Ratings { get; set; }
     }
 }

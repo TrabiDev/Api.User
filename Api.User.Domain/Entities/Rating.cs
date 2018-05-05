@@ -1,8 +1,5 @@
 ﻿using Api.User.Domain.Enum;
-using System;
-using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
-using System.Text;
 
 namespace Api.User.Domain.Entities
 {
@@ -14,9 +11,10 @@ namespace Api.User.Domain.Entities
         [Required]
         public int UserId { get; private set; }
 
-        public ERatingType RatingType  { get;set; }
+        [Required]
+        public ERatingType RatingType  { get; private set; }
 
-
-
+        [Required]
+        public float RatingValue { get; private set; }
     }
 }

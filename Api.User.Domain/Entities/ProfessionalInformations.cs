@@ -14,6 +14,6 @@ namespace Api.User.Domain.Entities
         [Required]
         public string Description { get; set; }
 
-        public List<Services> Services { get; set; }
+        public List<Service> Services { get; set; }
     }
 }

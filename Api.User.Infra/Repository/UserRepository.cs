@@ -52,15 +52,18 @@ namespace Api.User.Infra.Repository
                     {
                         user.Address = address;
                         user.ProfessionalInformations = professionalInformations;
-
-                        user.ProfessionalInformations.Services = new List<Services>();
-                        user.Images = new List<Images>();
+                        user.ProfessionalInformations.Services = new List<Service>();
+                        user.Images = new List<Image>();
+                        user.Ratings = new List<Rating>();
+                        user.Phones = new List<Phone>();
 
                         return user;
                     },
-                    splitOn: "Id, Id"
+                    splitOn: "Id, Id, Id"
                 )).ToList();
             }
+
+            var listUserId = users.Select(p => p.Id);
 
             #region GetServices 
 
@@ -77,13 +80,33 @@ namespace Api.User.Infra.Repository
 
             #region GetImages
 
-            var listUserId = users.Select(p => p.Id);
-
             var images = await GetImages(listUserId);
 
             foreach (var image in images)
             {
                 users.FirstOrDefault(p => p.Id == image.UserId).Images.Add(image);
+            }
+
+            #endregion
+
+            #region GetRatings
+
+            var ratings = await GetRatings(listUserId);
+
+            foreach (var rating in ratings)
+            {
+                users.FirstOrDefault(p => p.Id == rating.UserId).Ratings.Add(rating);
+            }
+
+            #endregion
+
+            #region GetPhones
+
+            var phones = await GetPhones(listUserId);
+
+            foreach (var phone in phones)
+            {
+                users.FirstOrDefault(p => p.Id == phone.UserId).Phones.Add(phone);
             }
 
             #endregion
@@ -96,13 +119,13 @@ namespace Api.User.Infra.Repository
         /// </summary>
         /// <param name="listProfessionalInformationsId">Lista de profissionais para consulta dos seus respectivos serviços</param>
         /// <returns></returns>
-        private async Task<IEnumerable<Services>> GetServices(IEnumerable<int> listProfessionalInformationsId)
+        private async Task<IEnumerable<Service>> GetServices(IEnumerable<int> listProfessionalInformationsId)
         {
             try
             {
                 using (SqlConnection connection = new SqlConnection(connectionString))
                 {
-                    return await connection.QueryAsync<Services>(
+                    return await connection.QueryAsync<Service>(
                         @"SELECT
                             *
                           FROM Services
@@ -127,14 +150,58 @@ namespace Api.User.Infra.Repository
         /// </summary>
         /// <param name="listUserId">Lista de usuários para consulta de suas respectivas imagens</param>
         /// <returns></returns>
-        private async Task<IEnumerable<Images>> GetImages(IEnumerable<int> listUserId)
+        private async Task<IEnumerable<Image>> GetImages(IEnumerable<int> listUserId)
         {
             using (SqlConnection connection = new SqlConnection(connectionString))
             {
-                return await connection.QueryAsync<Images>(
+                return await connection.QueryAsync<Image>(
                     @"SELECT
                         *
                       FROM Images
+                      WHERE UserId IN @listUserId;",
+                    param: new
+                    {
+                        listUserId
+                    }
+                );
+            }
+        }
+
+        /// <summary>
+        /// Busca os ratings de usuários
+        /// </summary>
+        /// <param name="listUserId">Lista de usuários</param>
+        /// <returns></returns>
+        private async Task<IEnumerable<Rating>> GetRatings(IEnumerable<int> listUserId)
+        {
+            using (SqlConnection connection = new SqlConnection(connectionString))
+            {
+                return await connection.QueryAsync<Rating>(
+                    @"SELECT
+                        *
+                      FROM Ratings
+                      WHERE UserId IN @listUserId;",
+                    param: new
+                    {
+                        listUserId
+                    }
+                );
+            }
+        }
+
+        /// <summary>
+        /// Busca os telefones de usuários
+        /// </summary>
+        /// <param name="listUserId">Lista de usuários</param>
+        /// <returns></returns>
+        private async Task<IEnumerable<Phone>> GetPhones(IEnumerable<int> listUserId)
+        {
+            using (SqlConnection connection = new SqlConnection(connectionString))
+            {
+                return await connection.QueryAsync<Phone>(
+                    @"SELECT
+                        *
+                      FROM Phones
                       WHERE UserId IN @listUserId;",
                     param: new
                     {
@@ -157,8 +224,6 @@ namespace Api.User.Infra.Repository
 	                    u.Id,
 	                    u.Name,
 	                    u.Email,
-	                    u.DDD,
-	                    u.Phone,
 	                    u.Password,
 	                    a.Id,
 	                    a.UserId,

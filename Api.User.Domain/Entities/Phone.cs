@@ -2,15 +2,18 @@
 
 namespace Api.User.Domain.Entities
 {
-    public class Services
+    public class Phone
     {
         [Required]
         public int Id { get; private set; }
 
         [Required]
-        public int ProfessionalInformationsId { get; private set; }
+        public int UserId { get; private set; }
 
         [Required]
-        public string Name { get; private set; }
+        public string DDD { get; private set; }
+
+        [Required]
+        public string PhoneNumber { get; private set; }
     }
 }

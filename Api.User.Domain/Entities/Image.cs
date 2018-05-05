@@ -3,7 +3,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace Api.User.Domain.Entities
 {
-    public class Images
+    public class Image
     {
         [Required]
         public int Id { get; private set; }
@@ -12,7 +12,7 @@ namespace Api.User.Domain.Entities
         public int UserId { get; private set; }
 
         [Required]
-        public EImagesType ImagesTypeId { get; set; }
+        public EImageType ImageTypeId { get; set; }
 
         [Required]
         public string Value { get; set; }
